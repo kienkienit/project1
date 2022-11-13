@@ -115,3 +115,56 @@ FROM dbo.NhapHang, dbo.NhanVien
 WHERE NhapHang.id_nv=NhanVien.id_nv
 GROUP BY NhapHang.id_nv,ten 
 
+-- Câu 12: Liệt kê loại mặt hàng tiêu dùng được mua nhiều nhất
+SELECT TOP 1 td.id_sp_Hangtd AS [ID Hàng tiêu dùng], sp.ten AS [Tên], 
+td.loai AS [Loại], 
+dbo.HoaDon.tong_sp as [Tổng sản phẩm]
+FROM dbo.HangTieuDung AS td
+JOIN dbo.SanPham AS sp ON sp.id_sp = td.id_sp_Hangtd
+JOIN dbo.Mua AS mua ON mua.id_sp = sp.id_sp
+JOIN dbo.HoaDon ON HoaDon.id_hd = sp.id_hd
+ORDER BY [Tổng sản phẩm] DESC
+
+-- Câu 13: Liệt kê loại mặt hàng đồ gia dụng được mua ít nhất
+SELECT TOP 1 gd.id_sp_DoGd AS [ID Đồ gia dụng], sp.ten AS [Tên], 
+gd.loai AS [Loại], 
+dbo.HoaDon.tong_sp as [Tổng sản phẩm]
+FROM dbo.DoGiaDung AS gd
+JOIN dbo.SanPham AS sp ON sp.id_sp = gd.id_sp_DoGd
+JOIN dbo.Mua AS mua ON mua.id_sp = sp.id_sp
+JOIN dbo.HoaDon ON HoaDon.id_hd = sp.id_hd
+ORDER BY [Tổng sản phẩm], [ID Đồ gia dụng]
+
+-- Câu 14: Liệt kê các chi nhánh có địa chỉ X (X = Dương Nội - Hà Đông)
+SELECT CN.id_cn AS [ID Chi nhánh], CN.ten AS [Tên chi nhánh], CN.dia_chi AS [Địa chỉ], NCC.ten AS [Nhà cung cấp]
+FROM dbo.ChiNhanh AS CN
+JOIN dbo.NhaCC AS NCC ON NCC.id_nhacc = CN.id_nhacc
+WHERE CN.dia_chi = N'Dương Nội - Hà Đông'
+
+-- Câu 15: Liệt kê các nhân viên từ 20 tuổi trở lên
+SELECT NV.id_nv AS [ID Nhân viên], NV.ten AS [Tên], NV.gioi_tinh AS [Giới tính], NV.tuoi AS [Tuổi], 
+NV.dia_chi AS [Địa chỉ], CV.ten AS [Chức vụ]
+FROM dbo.NhanVien AS NV 
+JOIN dbo.ChucVu AS CV ON CV.id_cv = NV.id_cv
+WHERE NV.tuoi >= 20
+ORDER BY NV.tuoi DESC
+
+-- Câu 16: Liệt kê số điện thoại liên hệ của các khách hàng nam có địa chỉ ở Hà Nội
+SELECT SDT.sdt AS [Số điện thoại], KH.id_KH AS [ID], KH.ten AS [Tên]
+FROM KhachHangSdt AS SDT
+JOIN KhachHang AS KH ON KH.id_KH = SDT.id_KH
+WHERE KH.gioi_tinh = N'Nam' AND KH.dia_chi = N'Hà Nội'
+
+-- Câu 17: Liệt kê các khu vực (địa chỉ) của khách hàng có số hóa đơn mua hàng giảm dần
+SELECT KH.dia_chi AS [Khu vực], COUNT(HD.id_hd) AS [Số hóa đơn]
+FROM dbo.KhachHang AS KH
+LEFT JOIN dbo.Mua AS MUA ON MUA.id_KH = KH.id_KH
+LEFT JOIN dbo.SanPham AS SP ON SP.id_sp = MUA.id_sp
+LEFT JOIN dbo.HoaDon AS HD ON HD.id_hd = SP.id_hd
+GROUP BY KH.dia_chi 
+ORDER BY [Số hóa đơn] DESC
+
+-- Câu 18: Thống kê độ tuổi trung bình của nhân viên bán hàng
+SELECT AVG(NV.tuoi) AS [Trung bình độ tuổi nhân viên], AVG(KH.tuoi) AS [Trung bình độ tuổi khách hàng]
+FROM dbo.NhanVien AS NV, dbo.KhachHang AS KH
+
